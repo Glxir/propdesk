@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prop Desk</title>
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0B0E13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prop Desk">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0E13;--s1:#141922;--s2:#0F141B;--line:#1E2633;--line2:#263042;--tx:#E7ECF3;--tx2:#C9D3E1;--mut:#9AA6B8;
+--ac:#2DD4BF;--ac2:#5EEAD4;--acbg:#10261F;--red:#FCA5A5;--redbg:#2A1414;--amb:#FCD34D;--ambbg:#2A2414;--blu:#93C5FD;--blubg:#14203A;
+--mono:'IBM Plex Mono',ui-monospace,monospace;--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(var(--sat) + 18px) 16px 24px;display:flex;flex-direction:column;gap:16px;max-width:560px;width:100%;margin:0 auto}
+h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em}
+h2{margin:0;font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card{background:var(--s1);border:1px solid #232C3B;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.col{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mut{color:var(--mut);font-size:12px}
+.sm{font-size:13px;color:var(--tx2)}
+.mono{font-family:var(--mono)}
+.big{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.02em}
+.pos{color:var(--ac2)}.neg{color:var(--red)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--acbg);color:var(--ac2)}.pill.bad{background:var(--redbg);color:var(--red)}.pill.warn{background:var(--ambbg);color:var(--amb)}.pill.info{background:var(--blubg);color:var(--blu)}.pill.off{background:#1A202B;color:var(--mut)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.tag{flex:0 0 auto;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700}
+.acct{background:var(--s1);border:1px solid #232C3B;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;text-align:left;width:100%}
+.acct:active{background:#18202B}
+.bar{height:6px;border-radius:99px;background:#222B39;overflow:hidden}.bar>i{display:block;height:100%;border-radius:99px;background:var(--ac)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--s2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-family:var(--mono);font-size:16px;font-weight:600}
+.btn{min-height:48px;border-radius:14px;border:1px solid var(--line2);background:var(--s1);font-size:15px;font-weight:600;padding:0 16px;width:100%}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#04201C}
+.btn.danger{background:var(--redbg);border-color:#4A2020;color:var(--red)}
+.btn:disabled{opacity:.5}
+.ibtn{min-width:40px;min-height:40px;border-radius:12px;border:1px solid var(--line2);background:var(--s2);display:inline-flex;align-items:center;justify-content:center}
+.tog{flex:0 0 auto;width:50px;height:30px;border-radius:999px;border:0;padding:3px;display:flex;background:#3A4558;transition:background .15s}
+.tog i{width:24px;height:24px;border-radius:50%;background:#fff;display:block;transition:transform .15s}
+.tog[aria-pressed=true]{background:#14B8A6}.tog[aria-pressed=true] i{transform:translateX(20px)}
+.tog.pending{opacity:.6}
+.list>*+*{border-top:1px solid var(--line)}
+.li{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:8px 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:36px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid var(--line2);background:var(--s1);color:var(--tx2)}
+.chip[aria-pressed=true]{border-color:var(--ac);background:var(--acbg);color:var(--ac2)}
+.step{display:flex;align-items:center;gap:6px}.step span{min-width:34px;text-align:center;font-family:var(--mono);font-weight:600}
+.feed{display:flex;flex-direction:column}
+.ev{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ev .t{font-family:var(--mono);font-size:12px;color:var(--mut);width:44px;flex:0 0 auto;padding-top:2px}
+.ev .b{white-space:pre-line;font-size:13px;color:var(--tx2);overflow-wrap:anywhere}
+.banner{border-radius:14px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.banner.bad{background:var(--redbg);color:var(--red)}.banner.warn{background:var(--ambbg);color:var(--amb)}.banner.info{background:var(--blubg);color:var(--blu)}
+input,textarea{width:100%;background:var(--s2);border:1px solid var(--line2);border-radius:12px;color:var(--tx);font:inherit;font-size:16px;padding:12px}
+textarea{font-family:var(--mono);font-size:13px;min-height:90px;resize:vertical}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mut)}
+.empty{color:var(--mut);text-align:center;padding:32px 12px;font-size:14px}
+a{color:#7CC4FF;text-decoration:none}
+nav{flex:0 0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--line);background:#0E1219;padding:6px 4px calc(var(--sab) + 6px)}
+nav a{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:48px;justify-content:center;color:var(--mut);font-size:11px;position:relative}
+nav a[aria-current=page]{color:var(--ac2);font-weight:600}
+nav a .badge{position:absolute;top:4px;left:calc(50% + 6px);width:8px;height:8px;border-radius:50%;background:var(--red)}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--s1);border-radius:20px 20px 0 0;padding:20px 16px calc(var(--sab) + 16px);width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(var(--sab) + 84px);margin:0 auto;max-width:520px;background:#222B39;border:1px solid var(--line2);border-radius:14px;padding:12px 14px;font-size:14px;z-index:30;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="app"><main id="view"></main><nav id="nav" aria-label="Main"></nav></div>
+<div id="layer"></div>
+<script>
+'use strict';
+// ------------------------------------------------------------------ config + storage
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('pd.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('pd.' + k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem('pd.' + k); } catch (e) {} }
+};
+let cfg = LS.get('cfg', null);          // {server, alerts, status, cmd, pin, demo}
+let status = LS.get('status', null);    // last hub status JSON
+let statusAt = LS.get('statusAt', 0);   // ms when the hub posted it
+let alerts = LS.get('alerts', []);      // [{id,time,title,message,tags,priority}]
+let seenAlert = LS.get('seenAlert', 0);
+let alertFilter = 'All';
+let pending = {};                       // optimistic UI: key -> value
+let loading = false, lastErr = '';
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = (v, sign) => v == null || isNaN(v) ? '—' : (sign ? (v > 0 ? '+' : v < 0 ? '−' : '') : (v < 0 ? '−' : '')) + '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money0 = (v) => v == null || isNaN(v) ? '—' : (v < 0 ? '−' : '') + '$' + Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
+const cls = (v) => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+const nyFmt = (opts) => new Intl.DateTimeFormat('en-US', Object.assign({ timeZone: 'America/New_York' }, opts));
+const tHM = nyFmt({ hour: 'numeric', minute: '2-digit', hour12: false });
+const tDay = nyFmt({ weekday: 'short', month: 'short', day: 'numeric' });
+const ago = (ms) => { const s = Math.max(0, Math.round((Date.now() - ms) / 1000)); return s < 60 ? s + ' s ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' d ago'; };
+const base = () => (cfg.server || 'https://ntfy.sh').replace(/\/+$/, '');
+const shortName = (n) => n && n.length > 18 ? n.slice(0, 7) + '…' + n.slice(-6) : n;
+
+// ------------------------------------------------------------------ demo data
+function demoStatus() {
+  return { v: 1, time: new Date(Date.now() - 40000).toISOString(), copying: true, leader: 'LUCID-PRO-25K-1',
+    followers: [{ name: 'LUCID-PRO-25K-2', mult: 1, enabled: true, connected: true }, { name: 'APEX-50K-1', mult: 2, enabled: true, connected: true }, { name: 'TOPSTEP-50K', mult: 1, enabled: false, connected: false }],
+    accounts: [
+      { name: 'LUCID-PRO-25K-1', leader: true, connection: 'Lucid', balance: 25136, today: 294.5, open: 0, floor: 24295, room: 841, minRoom: 200, warn: 300, dd: 1000, positions: [], strategies: [{ name: 'NoiseAreaMomentum', state: 'Realtime', inst: 'MNQ 12-26 Globex' }] },
+      { name: 'LUCID-PRO-25K-2', leader: false, connection: 'Lucid', balance: 25412.5, today: 290.0, open: 0, floor: 24412.5, room: 1000, minRoom: 200, warn: 300, dd: 1000, positions: [], strategies: [] },
+      { name: 'APEX-50K-1', leader: false, connection: 'Apex', balance: 50890, today: 582, open: 0, floor: 48390, room: 2500, minRoom: 200, warn: 300, dd: 2500, positions: [], strategies: [] }
+    ] };
+}
+function demoAlerts() {
+  const t = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); return Math.floor(d.getTime() / 1000); };
+  return [
+    { id: 'd5', time: t(12, 2), title: 'Leader FLAT · MNQ', message: 'Target filled 25,918.25 (Profit target)', tags: ['checkered_flag'] },
+    { id: 'd4', time: t(12, 2), title: 'Copied to 2 account(s)', message: 'LUCID-PRO-25K-2: Sell 1 @ 25,918.25\nAPEX-50K-1: Sell 2 @ 25,918.00', tags: ['white_check_mark'] },
+    { id: 'd3', time: t(10, 55), title: 'Copied to 2 account(s)', message: 'LUCID-PRO-25K-2: Buy 1 @ 25,768.50\nAPEX-50K-1: Buy 2 @ 25,768.75', tags: ['white_check_mark'] },
+    { id: 'd2', time: t(10, 55), title: 'Leader LONG 1 · MNQ', message: 'Buy 1 @ 25,768.25 (NAM Long)', tags: ['chart_with_upwards_trend'] },
+    { id: 'd1', time: t(9, 20), title: 'Hub ready', message: 'Copying ON · 3 accounts connected', tags: ['sunrise'] }
+  ];
+}
+
+// ------------------------------------------------------------------ ntfy I/O
+async function ntfyPoll(topic, since) {
+  const r = await fetch(base() + '/' + encodeURIComponent(topic) + '/json?poll=1&since=' + encodeURIComponent(since), { cache: 'no-store' });
+  if (!r.ok) throw new Error('ntfy ' + r.status);
+  const txt = await r.text();
+  return txt.split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch (e) { return null; } }).filter((m) => m && m.event === 'message');
+}
+async function messageBody(m) {
+  if (m.attachment && m.attachment.url) { const r = await fetch(m.attachment.url, { cache: 'no-store' }); return await r.text(); }
+  return m.message;
+}
+async function refresh(quiet) {
+  if (!cfg) return;
+  if (cfg.demo) { status = demoStatus(); statusAt = Date.now() - 40000; if (!alerts.length) alerts = demoAlerts(); render(); return; }
+  if (loading) return;
+  loading = true; if (!quiet) render();
+  try {
+    let msgs = await ntfyPoll(cfg.status, 'latest');
+    if (!msgs.length) msgs = await ntfyPoll(cfg.status, '12h');
+    if (msgs.length) {
+      const m = msgs[msgs.length - 1];
+      const s = JSON.parse(await messageBody(m));
+      status = s; statusAt = (m.time || 0) * 1000;
+      LS.set('status', status); LS.set('statusAt', statusAt);
+      pending = {};
+    }
+    const lastId = alerts.length ? alerts[0].id : null;
+    const fresh = await ntfyPoll(cfg.alerts, lastId || '12h');
+    if (fresh.length) {
+      const known = new Set(alerts.map((a) => a.id));
+      const add = fresh.filter((m) => !known.has(m.id)).map((m) => ({ id: m.id, time: m.time, title: m.title || '', message: m.message || '', tags: m.tags || [], priority: m.priority || 3 }));
+      alerts = add.reverse().concat(alerts).sort((a, b) => b.time - a.time).slice(0, 400);
+      LS.set('alerts', alerts);
+    }
+    lastErr = '';
+  } catch (e) { lastErr = navigator.onLine === false ? 'You are offline.' : 'Could not reach ntfy (' + e.message + ').'; }
+  loading = false; render();
+}
+async function send(cmd, okMsg) {
+  if (cfg.demo) { toast('Demo mode: "' + cmd + '" would be sent to your hub.'); return true; }
+  try {
+    const r = await fetch(base() + '/' + encodeURIComponent(cfg.cmd), { method: 'POST', body: cfg.pin + ' ' + cmd });
+    if (!r.ok) throw new Error('ntfy ' + r.status);
+    toast(okMsg || 'Sent. The hub picks it up within 10 seconds.');
+    setTimeout(() => refresh(true), 14000); setTimeout(() => refresh(true), 30000);
+    return true;
+  } catch (e) { toast('Not sent: ' + e.message); return false; }
+}
+async function testPush() {
+  if (cfg.demo) { toast('Demo mode: set up your hub first.'); return; }
+  try {
+    const r = await fetch(base() + '/' + encodeURIComponent(cfg.alerts), { method: 'POST', headers: { Title: 'Prop Desk test', Tags: 'bell' }, body: 'If you see this on your lock screen, push alerts work.' });
+    toast(r.ok ? 'Test sent. It should pop up through the ntfy app.' : 'Failed: ' + r.status);
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ------------------------------------------------------------------ derived state
+function hubHealth() {
+  if (!status) return { k: 'off', label: 'No data yet' };
+  const ny = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const hm = ny.getHours() * 100 + ny.getMinutes(), wk = ny.getDay() > 0 && ny.getDay() < 6;
+  const limit = (wk && hm >= 905 && hm <= 1700 ? 12 : 75) * 60000;
+  const age = Date.now() - statusAt;
+  return age <= limit ? { k: 'ok', label: 'Online' } : { k: 'bad', label: 'Offline' };
+}
+const accounts = () => (status && status.accounts) || [];
+const followerOf = (name) => ((status && status.followers) || []).find((f) => f.name.toLowerCase() === String(name).toLowerCase());
+function roomInfo(a) {
+  if (a.room == null) return { k: 'off', pct: null };
+  const k = a.room < (a.minRoom || 200) ? 'bad' : a.room < (a.warn || 300) ? 'warn' : 'ok';
+  const pct = a.dd > 0 ? Math.max(0, Math.min(100, a.room / a.dd * 100)) : null;
+  return { k, pct };
+}
+function alertKind(a) {
+  const t = a.tags || [];
+  if (t.includes('chart_with_upwards_trend') || t.includes('checkered_flag')) return 'Trade';
+  if (t.includes('white_check_mark')) return 'Fill';
+  if (['warning', 'no_entry', 'rotating_light', 'octagonal_sign', 'x'].some((x) => t.includes(x)) || /REJECTED|skipped|limit/i.test(a.title)) return 'Risk';
+  return 'Hub';
+}
+const KIND = { Trade: ['var(--blubg)', 'var(--blu)'], Fill: ['var(--acbg)', 'var(--ac2)'], Risk: ['var(--ambbg)', 'var(--amb)'], Hub: ['#1A202B', 'var(--mut)'] };
+
+// ------------------------------------------------------------------ UI helpers
+const ICON = {
+  acc: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18"/>',
+  str: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  hub: '<rect x="2" y="4" width="20" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/>',
+  ref: '<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>',
+  back: '<path d="M15 18l-6-6 6-6"/>',
+  chev: '<path d="M9 18l6-6-6-6"/>'
+};
+const svg = (k, sz = 22, extra = '') => '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ' + extra + '>' + ICON[k] + '</svg>';
+const pill = (k, label) => '<span class="pill ' + k + '"><span class="dot"></span>' + esc(label) + '</span>';
+const tog = (on, act, label, pend) => '<button class="tog' + (pend ? ' pending' : '') + '" aria-label="' + esc(label) + '" aria-pressed="' + (on ? 'true' : 'false') + '" data-act="' + esc(act) + '"><i></i></button>';
+const refreshBtn = () => '<button class="ibtn" data-act="refresh" aria-label="Refresh">' + svg('ref', 20, loading ? 'class="spin"' : '') + '</button>';
+function header(title, back) {
+  return '<div class="top">' + (back ? '<a class="ibtn" href="' + back + '" aria-label="Back">' + svg('back', 20) + '</a>' : '') +
+    '<h1 style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(title) + '</h1>' + refreshBtn() + '</div>';
+}
+function hubBanner() {
+  let h = '';
+  if (cfg && cfg.demo) h += '<div class="banner info">Demo data. Open the Hub tab to connect your own hub.</div>';
+  if (lastErr) h += '<div class="banner warn">' + esc(lastErr) + '</div>';
+  const hh = hubHealth();
+  if (!cfg.demo && status && hh.k === 'bad') h += '<div class="banner bad">The hub has not checked in since ' + esc(ago(statusAt)) + '. Copying and alerts are not running. Check the mini PC and NinjaTrader.</div>';
+  if (!cfg.demo && !status && !loading) h += '<div class="banner info">Waiting for the first status from your hub. Make sure NinjaTrader is running with PropDeskHub installed.</div>';
+  return h;
+}
+let toastT;
+function toast(msg) {
+  const el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); el.textContent = msg;
+  document.querySelectorAll('.toast').forEach((t) => t.remove()); document.body.appendChild(el);
+  clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 3800);
+}
+function sheet(title, body, okLabel, danger, onOk) {
+  const L = $('#layer');
+  L.innerHTML = '<div class="sheet-bg" data-act="sheet-close"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '">' +
+    '<div style="font-size:18px;font-weight:700">' + esc(title) + '</div><div class="sm" style="line-height:1.5">' + body + '</div>' +
+    '<button class="btn ' + (danger ? 'danger' : 'pri') + '" id="sheet-ok">' + esc(okLabel) + '</button><button class="btn" data-act="sheet-close">Cancel</button></div></div>';
+  $('#sheet-ok').onclick = () => { L.innerHTML = ''; onOk(); };
+}
+
+// ------------------------------------------------------------------ screens
+function vAccounts() {
+  const A = accounts();
+  const tot = A.reduce((s, a) => s + (a.today || 0) + (a.open || 0), 0);
+  const hh = hubHealth();
+  let h = header('Accounts') + hubBanner();
+  if (status) {
+    h += '<div class="card"><div class="row"><span class="mut">Today across ' + A.length + ' account' + (A.length === 1 ? '' : 's') + '</span>' + pill(hh.k, hh.label) + '</div>' +
+      '<div class="big ' + cls(tot) + '">' + money(tot, true) + '</div>' +
+      '<div class="row"><span class="sm">Copying ' + (status.copying ? '<b class="pos">ON</b>' : '<b class="neg">PAUSED</b>') + '</span><span class="mut">Updated ' + esc(ago(statusAt)) + '</span></div></div>';
+  }
+  if (!A.length && status) h += '<div class="empty">No accounts in the hub settings yet. Add your leader and followers in PropDesk.xml on the hub.</div>';
+  A.forEach((a) => {
+    const r = roomInfo(a), f = followerOf(a.name);
+    const role = a.leader ? pill('info', 'Leader') : f ? (f.enabled ? pill('ok', 'Copying ×' + f.mult) : pill('off', 'Not copying')) : '';
+    const posTxt = (a.positions || []).map((p) => (p.qty > 0 ? 'Long ' : 'Short ') + Math.abs(p.qty) + ' ' + p.inst + ' @ ' + p.avg.toLocaleString('en-US', { minimumFractionDigits: 2 })).join(' · ');
+    h += '<button class="acct" data-go="#account/' + encodeURIComponent(a.name) + '">' +
+      '<div class="row"><div class="col"><span style="font-weight:600;font-size:15px">' + esc(shortName(a.name)) + '</span><span class="mut">' + esc(a.connection || '') + '</span></div>' + role + '</div>' +
+      '<div class="row"><span class="mono" style="font-size:18px;font-weight:600">' + money(a.balance) + '</span><span class="mono ' + cls(a.today + a.open) + '">' + money((a.today || 0) + (a.open || 0), true) + ' today</span></div>' +
+      (a.room != null ? '<div class="col" style="gap:6px"><div class="row"><span class="mut">Room to loss limit</span><span class="mono" style="font-size:13px;color:' + (r.k === 'bad' ? 'var(--red)' : r.k === 'warn' ? 'var(--amb)' : 'var(--tx2)') + '">' + money0(a.room) + '</span></div>' +
+        (r.pct != null ? '<div class="bar"><i style="width:' + r.pct + '%;background:' + (r.k === 'bad' ? '#F87171' : r.k === 'warn' ? '#FBBF24' : 'var(--ac)') + '"></i></div>' : '') + '</div>' : '') +
+      (posTxt ? '<div class="sm pos">' + esc(posTxt) + (a.open ? ' · ' + money(a.open, true) : '') + '</div>' : '') +
+      '</button>';
+  });
+  return h;
+}
+function vAccount(name) {
+  const a = accounts().find((x) => x.name === name);
+  if (!a) return header('Account', '#accounts') + '<div class="empty">This account is not in the latest hub status.</div>';
+  const r = roomInfo(a), f = followerOf(a.name);
+  let h = header(shortName(a.name), '#accounts') + hubBanner();
+  h += '<div class="card"><div class="row"><span class="mut">' + esc(a.name) + (a.connection ? ' · ' + esc(a.connection) : '') + '</span>' + (a.leader ? pill('info', 'Leader') : '') + '</div>' +
+    '<div class="big">' + money(a.balance) + '</div><div class="grid2">' +
+    '<div class="stat"><span class="mut">Realized today</span><b class="' + cls(a.today) + '">' + money(a.today, true) + '</b></div>' +
+    '<div class="stat"><span class="mut">Open P&amp;L</span><b class="' + cls(a.open) + '">' + money(a.open, true) + '</b></div>' +
+    '<div class="stat"><span class="mut">Loss limit</span><b>' + money0(a.floor) + '</b></div>' +
+    '<div class="stat"><span class="mut">Room</span><b style="color:' + (r.k === 'bad' ? 'var(--red)' : r.k === 'warn' ? 'var(--amb)' : 'inherit') + '">' + money0(a.room) + '</b></div></div>' +
+    (r.pct != null ? '<div class="bar"><i style="width:' + r.pct + '%"></i></div>' : '') +
+    (a.room != null ? '<span class="mut">New copies are skipped under ' + money0(a.minRoom) + ' of room; you get a warning under ' + money0(a.warn) + '.</span>' : '<span class="mut">Set LossLimit for this account in PropDesk.xml to track room.</span>') + '</div>';
+  h += '<div class="card"><h2>Open positions</h2>' + ((a.positions || []).length ? '<div class="list">' + a.positions.map((p) =>
+    '<div class="li"><div class="col"><span style="font-weight:600">' + (p.qty > 0 ? 'Long' : 'Short') + ' ' + Math.abs(p.qty) + ' ' + esc(p.inst) + '</span><span class="mut mono">avg ' + p.avg.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</span></div>' + pill(p.qty > 0 ? 'ok' : 'bad', p.qty > 0 ? 'Long' : 'Short') + '</div>').join('') + '</div>' : '<span class="sm">Flat</span>') + '</div>';
+  const st = a.strategies || [];
+  h += '<div class="card"><h2>Strategies</h2>';
+  if (st.length) h += '<div class="list">' + st.map((s) => '<div class="li"><div class="col"><span style="font-weight:600">' + esc(prettyStrat(s.name)) + '</span><span class="mut">' + esc(s.inst) + '</span></div>' + stratPill(s.state) + '</div>').join('') + '</div>';
+  else if (f) { const L = accounts().find((x) => x.leader); h += '<span class="sm">' + (f.enabled ? 'Copies the leader' + (L && L.strategies && L.strategies.length ? ' (' + esc(L.strategies.map((s) => prettyStrat(s.name)).join(', ')) + ')' : '') + ' at ×' + f.mult + ' size.' : 'Not copying right now.') + '</span>'; }
+  else h += '<span class="sm">No strategies enabled on this account.</span>';
+  h += '</div>';
+  if (f) {
+    const on = pending['f:' + f.name] != null ? pending['f:' + f.name] : f.enabled;
+    const mult = pending['m:' + f.name] != null ? pending['m:' + f.name] : f.mult;
+    h += '<div class="card"><h2>Copying</h2><div class="list">' +
+      '<div class="li"><div class="col"><span style="font-weight:600">Copy leader trades</span><span class="mut">' + (f.connected ? 'Connected in NinjaTrader' : 'Not connected in NinjaTrader') + '</span></div>' + tog(on, 'follower:' + f.name, 'Copy to ' + f.name, pending['f:' + f.name] != null) + '</div>' +
+      '<div class="li"><div class="col"><span style="font-weight:600">Size</span><span class="mut">Leader contracts × this</span></div>' + stepper(f.name, mult) + '</div></div></div>';
+  }
+  h += '<button class="btn danger" data-act="flatacct:' + esc(a.name) + '">Flatten this account</button>';
+  return h;
+}
+const prettyStrat = (n) => ({ NoiseAreaMomentum: 'NAM · Noise Area Momentum', NoiseAreaMomentumStrategy: 'NAM · Noise Area Momentum', NoiseAreaMomentumLucid: 'NAM Lucid' }[n] || n);
+const stratPill = (s) => /realtime|historical|active|enabled/i.test(s || '') ? pill('ok', s === 'Realtime' ? 'Running' : s) : pill('off', s || 'Stopped');
+const stepper = (name, v) => '<div class="step"><button class="ibtn" data-act="mult:' + esc(name) + ':-1" aria-label="Smaller">−</button><span>×' + v + '</span><button class="ibtn" data-act="mult:' + esc(name) + ':1" aria-label="Bigger">+</button></div>';
+
+function vStrategies() {
+  const A = accounts(), map = {};
+  A.forEach((a) => (a.strategies || []).forEach((s) => { const k = prettyStrat(s.name); (map[k] = map[k] || []).push({ a, s }); }));
+  const fol = ((status && status.followers) || []).filter((f) => f.enabled && f.mult > 0);
+  let h = header('Strategies') + hubBanner();
+  const keys = Object.keys(map);
+  if (!keys.length) h += '<div class="empty">No strategy is enabled on any hub account right now.<br><br>Enable NAM on your leader account in NinjaTrader (Control Center › Strategies) and it shows up here.</div>';
+  keys.forEach((k) => {
+    const rows = map[k], leaderRun = rows.some((r) => r.a.leader);
+    const todays = rows.reduce((s, r) => s + (r.a.today || 0) + (r.a.open || 0), 0) + (leaderRun ? fol.reduce((s, f) => { const fa = A.find((x) => x.name === f.name); return s + (fa ? (fa.today || 0) + (fa.open || 0) : 0); }, 0) : 0);
+    h += '<div class="card"><div class="row"><div class="col"><span style="font-size:17px;font-weight:700">' + esc(k) + '</span><span class="mut">' + esc(rows[0].s.inst) + '</span></div><span class="mono ' + cls(todays) + '">' + money(todays, true) + '</span></div>' +
+      '<h2>Trading on</h2><div class="list">' +
+      rows.map((r) => '<div class="li"><div class="col"><span style="font-weight:600">' + esc(shortName(r.a.name)) + '</span><span class="mut">' + (r.a.leader ? 'Runs the strategy (leader)' : 'Runs the strategy') + '</span></div>' + stratPill(r.s.state) + '</div>').join('') +
+      (leaderRun ? fol.map((f) => '<div class="li"><div class="col"><span style="font-weight:600">' + esc(shortName(f.name)) + '</span><span class="mut">Copied from leader · ×' + f.mult + '</span></div>' + (status.copying ? (f.connected ? pill('ok', 'Copying') : pill('bad', 'Disconnected')) : pill('warn', 'Paused')) + '</div>').join('') : '') +
+      '</div></div>';
+  });
+  h += '<div class="card"><h2>Adding a strategy</h2><span class="sm" style="line-height:1.5">Install it in NinjaTrader on the hub and enable it on an account. It appears here on the next status update. Strategies on the leader are copied to every follower that has copying on.</span></div>';
+  return h;
+}
+
+function vCopy() {
+  let h = header('Copy') + hubBanner();
+  if (!status) return h + '<div class="empty">No hub status yet.</div>';
+  const copying = pending.copy != null ? pending.copy : status.copying;
+  const L = accounts().find((a) => a.leader);
+  h += '<div class="card"><div class="row"><div class="col"><span style="font-size:16px;font-weight:600">Copy trading</span><span class="mut">' + (copying ? 'New leader trades go to followers' : 'Paused · open copies still follow the leader out') + '</span></div>' + tog(copying, 'copy', 'Copy trading', pending.copy != null) + '</div></div>';
+  h += '<div class="card"><h2>Leader</h2><div class="row"><div class="col"><span style="font-weight:600">' + esc(shortName(status.leader) || 'Not set') + '</span><span class="mut">' + (L && L.strategies && L.strategies.length ? esc(L.strategies.map((s) => prettyStrat(s.name)).join(', ')) : 'No strategy enabled') + '</span></div>' + (L ? '<span class="mono ' + cls(L.today + L.open) + '">' + money(L.today + L.open, true) + '</span>' : pill('bad', 'Not connected')) + '</div></div>';
+  const F = status.followers || [];
+  h += '<div class="card"><h2>Followers</h2>' + (F.length ? '<div class="list">' + F.map((f) => {
+    const a = accounts().find((x) => x.name.toLowerCase() === f.name.toLowerCase()), r = a ? roomInfo(a) : { k: 'off' };
+    const on = pending['f:' + f.name] != null ? pending['f:' + f.name] : f.enabled, mult = pending['m:' + f.name] != null ? pending['m:' + f.name] : f.mult;
+    return '<div style="padding:10px 0;display:flex;flex-direction:column;gap:8px"><div class="row"><div class="col"><span style="font-weight:600">' + esc(shortName(f.name)) + '</span><span class="mut">' +
+      (!f.connected ? '<span class="neg">Not connected</span>' : a && a.room != null ? 'Room <span style="color:' + (r.k === 'bad' ? 'var(--red)' : r.k === 'warn' ? 'var(--amb)' : 'inherit') + '">' + money0(a.room) + '</span>' : 'Connected') + '</span></div>' +
+      tog(on, 'follower:' + f.name, 'Copy to ' + f.name, pending['f:' + f.name] != null) + '</div><div class="row"><span class="mut">Size</span>' + stepper(f.name, mult) + '</div></div>';
+  }).join('') + '</div>' : '<span class="sm">No followers yet. Add them in PropDesk.xml on the hub.</span>') + '</div>';
+  h += '<div class="card"><h2>Emergency</h2><button class="btn danger" data-act="flatfol">Flatten followers</button><button class="btn danger" data-act="flatall">Flatten all accounts</button><span class="mut">Closes positions, cancels orders and pauses copying.</span></div>';
+  return h;
+}
+
+function vAlerts() {
+  seenAlert = alerts.length ? alerts[0].time : 0; LS.set('seenAlert', seenAlert);
+  let h = header('Alerts') + (lastErr ? '<div class="banner warn">' + esc(lastErr) + '</div>' : '');
+  h += '<div class="chips">' + ['All', 'Trade', 'Fill', 'Risk', 'Hub'].map((f) => '<button class="chip" aria-pressed="' + (alertFilter === f ? 'true' : 'false') + '" data-act="filter:' + f + '">' + (f === 'All' || f === 'Hub' ? f : f + 's') + '</button>').join('') + '</div>';
+  const list = alerts.filter((a) => alertFilter === 'All' || alertKind(a) === alertFilter);
+  if (!list.length) return h + '<div class="empty">' + (alerts.length ? 'Nothing in this filter.' : 'No alerts yet. They appear here and as push notifications in the ntfy app.') + '</div>';
+  let day = '';
+  h += '<div class="feed">';
+  list.forEach((a) => {
+    const d = new Date(a.time * 1000), dk = tDay.format(d);
+    if (dk !== day) { day = dk; h += '<span style="font-size:13px;color:var(--mut);font-weight:600;padding-top:12px">' + esc(dk) + '</span>'; }
+    const k = alertKind(a), c = KIND[k];
+    h += '<div class="ev"><span class="t">' + esc(tHM.format(d)) + '</span><div class="col" style="gap:4px;flex:1 1 auto"><div style="display:flex;align-items:center;gap:8px"><span class="tag" style="background:' + c[0] + ';color:' + c[1] + '">' + k + '</span><span style="font-size:14px;font-weight:600">' + esc(a.title || 'Prop Desk') + '</span></div><span class="b">' + esc(a.message) + '</span></div></div>';
+  });
+  return h + '</div>';
+}
+
+function vHub() {
+  const hh = hubHealth();
+  let h = header('Hub') + (lastErr ? '<div class="banner warn">' + esc(lastErr) + '</div>' : '');
+  const conns = {};
+  accounts().forEach((a) => { const k = a.connection || 'Connection'; conns[k] = (conns[k] || 0) + 1; });
+  const off = ((status && status.followers) || []).filter((f) => !f.connected);
+  h += '<div class="card"><div class="row"><div class="col"><span style="font-size:16px;font-weight:600">NinjaTrader hub</span><span class="mut">' + (status ? 'Last check-in ' + esc(ago(statusAt)) : 'No check-in yet') + '</span></div>' + pill(hh.k, hh.label) + '</div>' +
+    Object.keys(conns).map((k) => '<div class="row" style="background:var(--s2);border-radius:12px;padding:10px 12px"><div class="col"><span style="font-weight:600">' + esc(k) + '</span><span class="mut">' + conns[k] + ' account' + (conns[k] > 1 ? 's' : '') + '</span></div><span class="pos" style="font-size:12px;font-weight:600">Connected</span></div>').join('') +
+    off.map((f) => '<div class="row" style="background:var(--s2);border-radius:12px;padding:10px 12px"><div class="col"><span style="font-weight:600">' + esc(shortName(f.name)) + '</span><span class="mut">Follower</span></div><span class="neg" style="font-size:12px;font-weight:600">Not connected</span></div>').join('') +
+    '<span class="mut">Orders are placed by NinjaTrader on the mini PC. If it goes offline, stops and targets already placed stay at the broker. Status updates every 5 min in market hours and right after each fill.</span></div>';
+  h += '<div class="card"><h2>Push notifications</h2><span class="sm" style="line-height:1.5">Push alerts come through the free <b>ntfy</b> app. In ntfy tap <b>+</b>, enter the topic below, server <b>ntfy.sh</b>, and subscribe.</span>' +
+    (cfg.demo ? '' : '<div class="row" style="background:var(--s2);border-radius:12px;padding:10px 12px"><span class="mono" style="font-size:13px;overflow-wrap:anywhere">' + esc(cfg.alerts) + '</span><button class="chip" data-act="copytopic">Copy</button></div>') +
+    '<button class="btn" data-act="test">Send a test notification</button><button class="btn" data-act="askstatus">Ask the hub for a status push</button></div>';
+  h += '<div class="card"><h2>This phone</h2><span class="sm">' + (cfg.demo ? 'Showing demo data.' : 'Connected to your hub topics. Keep the setup code private.') + '</span><button class="btn ' + (cfg.demo ? 'pri' : '') + '" data-act="setup">' + (cfg.demo ? 'Connect my hub' : 'Change setup') + '</button>' +
+    (cfg.demo ? '' : '<button class="btn" data-act="clearalerts">Clear alert history on this phone</button>') + '</div>';
+  return h;
+}
+
+function vSetup() {
+  let h = '<div class="col" style="gap:8px;padding-top:12px"><div style="width:56px;height:56px;border-radius:16px;background:var(--acbg);color:var(--ac2);display:flex;align-items:center;justify-content:center">' + svg('copy', 28) + '</div>' +
+    '<h1>Prop Desk</h1><span class="sm" style="line-height:1.5">Your prop accounts, copy trading and strategy alerts, run by your NinjaTrader hub. Paste the setup code from the hub’s NinjaScript Output window (the line that starts with “PHONE APP SETUP CODE”).</span></div>';
+  h += '<div class="card"><label>Setup code<textarea id="code" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="eyJ2IjoxLCJzZXJ2ZXIiOi..."></textarea></label><button class="btn pri" data-act="savecode">Connect</button></div>';
+  h += '<details class="card"><summary style="font-weight:600;cursor:pointer">Enter topics by hand</summary><div class="col" style="gap:10px;margin-top:12px">' +
+    '<label>Server<input id="m-server" value="' + esc((cfg && cfg.server) || 'https://ntfy.sh') + '"></label>' +
+    '<label>Alerts topic<input id="m-alerts" value="' + esc((cfg && cfg.alerts) || '') + '" autocapitalize="off"></label>' +
+    '<label>Status topic<input id="m-status" value="' + esc((cfg && cfg.status) || '') + '" autocapitalize="off"></label>' +
+    '<label>Command topic<input id="m-cmd" value="' + esc((cfg && cfg.cmd) || '') + '" autocapitalize="off"></label>' +
+    '<label>PIN<input id="m-pin" inputmode="numeric" value="' + esc((cfg && cfg.pin) || '') + '"></label>' +
+    '<button class="btn pri" data-act="savemanual">Save</button></div></details>';
+  h += '<button class="btn" data-act="demo">Look around with demo data</button>';
+  if (cfg && !cfg.demo) h += '<button class="btn" data-act="cancelsetup">Cancel</button>';
+  return h;
+}
+
+// ------------------------------------------------------------------ routing + render
+const TABS = [['accounts', 'Accounts', 'acc'], ['strategies', 'Strategies', 'str'], ['copy', 'Copy', 'copy'], ['alerts', 'Alerts', 'bell'], ['hub', 'Hub', 'hub']];
+let setupMode = false;
+function route() { const h = location.hash.replace(/^#/, '') || 'accounts'; const [r, ...rest] = h.split('/'); return { r, arg: rest.length ? decodeURIComponent(rest.join('/')) : null }; }
+function render() {
+  const { r, arg } = route();
+  const nav = $('#nav'), view = $('#view');
+  const scroll = view.scrollTop, keep = view.dataset.route === location.hash;
+  if (!cfg || setupMode) { nav.classList.add('hide'); if (view.dataset.route !== 'setup') { view.innerHTML = vSetup(); view.dataset.route = 'setup'; } return; }
+  nav.classList.remove('hide');
+  const html = r === 'account' ? vAccount(arg) : r === 'strategies' ? vStrategies() : r === 'copy' ? vCopy() : r === 'alerts' ? vAlerts() : r === 'hub' ? vHub() : vAccounts();
+  view.innerHTML = html; view.dataset.route = location.hash;
+  if (keep) view.scrollTop = scroll;
+  const cur = r === 'account' ? 'accounts' : (TABS.some((t) => t[0] === r) ? r : 'accounts');
+  const unread = alerts.length && alerts[0].time > seenAlert && cur !== 'alerts';
+  nav.innerHTML = TABS.map((t) => '<a href="#' + t[0] + '"' + (t[0] === cur ? ' aria-current="page"' : '') + '>' + svg(t[2]) + t[1] + (t[0] === 'alerts' && unread ? '<span class="badge"></span>' : '') + (t[0] === 'hub' && status && !cfg.demo && hubHealth().k === 'bad' ? '<span class="badge"></span>' : '') + '</a>').join('');
+}
+
+// ------------------------------------------------------------------ actions
+function parseCode(txt) {
+  const t = (txt || '').trim().replace(/^.*SETUP CODE[^:]*:\s*/i, '').replace(/\s+/g, '');
+  const j = JSON.parse(decodeURIComponent(escape(atob(t))));
+  if (!j.alerts || !j.status || !j.cmd || !j.pin) throw new Error('missing fields');
+  return { server: j.server || 'https://ntfy.sh', alerts: j.alerts, status: j.status, cmd: j.cmd, pin: String(j.pin) };
+}
+function connect(c) {
+  const changed = !cfg || cfg.demo || cfg.alerts !== c.alerts;
+  cfg = c; LS.set('cfg', cfg);
+  if (changed) { alerts = []; status = null; statusAt = 0; LS.set('alerts', []); LS.del('status'); }
+  setupMode = false; location.hash = '#accounts'; render(); refresh();
+}
+const multTimers = {};
+document.addEventListener('click', (e) => {
+  const go = e.target.closest('[data-go]'); if (go) { location.hash = go.dataset.go; return; }
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act;
+  if (act === 'sheet-close') { if (e.target === el || el.tagName === 'BUTTON') $('#layer').innerHTML = ''; return; }
+  if (act === 'refresh') { refresh(); return; }
+  if (act === 'savecode') { try { connect(parseCode($('#code').value)); } catch (x) { toast('That setup code did not work. Copy the whole line from the NinjaScript Output window.'); } return; }
+  if (act === 'savemanual') {
+    const c = { server: $('#m-server').value.trim() || 'https://ntfy.sh', alerts: $('#m-alerts').value.trim(), status: $('#m-status').value.trim(), cmd: $('#m-cmd').value.trim(), pin: $('#m-pin').value.trim() };
+    if (!c.alerts || !c.status || !c.cmd || !c.pin) { toast('Fill in all four fields.'); return; }
+    connect(c); return;
+  }
+  if (act === 'demo') { cfg = { demo: true }; LS.set('cfg', cfg); alerts = demoAlerts(); setupMode = false; location.hash = '#accounts'; refresh(); return; }
+  if (act === 'setup') { setupMode = true; $('#view').dataset.route = ''; render(); return; }
+  if (act === 'cancelsetup') { setupMode = false; render(); return; }
+  if (act === 'test') { testPush(); return; }
+  if (act === 'askstatus') { send('status', 'Asked. A status push arrives in a few seconds.'); return; }
+  if (act === 'copytopic') { navigator.clipboard && navigator.clipboard.writeText(cfg.alerts).then(() => toast('Topic copied.'), () => toast(cfg.alerts)); return; }
+  if (act === 'clearalerts') { alerts = []; LS.set('alerts', []); toast('Cleared. The last 12 hours reload on the next refresh.'); render(); return; }
+  if (act.startsWith('filter:')) { alertFilter = act.slice(7); render(); return; }
+  if (act === 'copy') {
+    const now = pending.copy != null ? pending.copy : status.copying;
+    const next = !now;
+    const go = () => { pending.copy = next; render(); send(next ? 'resume' : 'pause', next ? 'Copying back on.' : 'Copying paused.'); };
+    if (!next) sheet('Pause copy trading?', 'New leader trades will not be copied. Copied trades that are open now still follow the leader’s stop, target and exit.', 'Pause copying', false, go); else go();
+    return;
+  }
+  if (act.startsWith('follower:')) {
+    const name = act.slice(9), f = followerOf(name); if (!f) return;
+    const now = pending['f:' + f.name] != null ? pending['f:' + f.name] : f.enabled;
+    pending['f:' + f.name] = !now; render(); send('follower ' + f.name + ' ' + (!now ? 'on' : 'off')); return;
+  }
+  if (act.startsWith('mult:')) {
+    const parts = act.split(':'), d = parseInt(parts.pop(), 10), name = parts.slice(1).join(':'), f = followerOf(name); if (!f) return;
+    const cur = pending['m:' + f.name] != null ? pending['m:' + f.name] : f.mult, nv = Math.max(0, Math.min(9, cur + d));
+    if (nv === cur) return;
+    pending['m:' + f.name] = nv; render();
+    clearTimeout(multTimers[f.name]); multTimers[f.name] = setTimeout(() => send('mult ' + f.name + ' ' + nv, 'Size ×' + nv + ' sent. Applies to the next copied trade.'), 1200);
+    return;
+  }
+  if (act.startsWith('flatacct:')) {
+    const name = act.slice(9);
+    sheet('Flatten ' + shortName(name) + '?', 'Closes every position and cancels every working order on this account at market.' + (followerOf(name) ? ' Copying to it turns off.' : ' This is the leader: NAM will need a disable/re-enable before the next session.'), 'Flatten now', true, () => send('flatten account ' + name, 'Flatten sent.'));
+    return;
+  }
+  if (act === 'flatfol') { sheet('Flatten all followers?', 'Closes follower positions, cancels their orders and pauses copying. The leader keeps trading.', 'Flatten followers', true, () => { pending.copy = false; render(); send('flatten followers', 'Flatten sent.'); }); return; }
+  if (act === 'flatall') { sheet('Flatten every account?', 'Closes all positions on the leader and followers, cancels all orders and pauses copying. Disable and re-enable NAM before the next session.', 'Flatten everything', true, () => { pending.copy = false; render(); send('flatten all', 'Flatten sent.'); }); return; }
+});
+window.addEventListener('hashchange', () => { $('#view').scrollTop = 0; render(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
+setInterval(() => { if (!document.hidden) refresh(true); }, 60000);
+setInterval(() => { if (!document.hidden && !$('#layer').innerHTML && route().r !== 'setup') render(); }, 15000);
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+render(); refresh();
+</script>
+</body>
+</html>
